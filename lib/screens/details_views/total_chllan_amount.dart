@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:trafficlly/utills/export.dart';
 import 'package:trafficlly/widgets/app_bar_widget.dart';
 import 'package:trafficlly/widgets/challan_analysis_section.dart';
@@ -7,6 +6,7 @@ import 'package:trafficlly/widgets/challan_bar_chart.dart';
 import 'package:trafficlly/widgets/challan_pie_chart.dart';
 import 'package:trafficlly/widgets/custom_button.dart';
 import 'package:trafficlly/widgets/shimmer.dart';
+import 'package:intl/intl.dart';
 
 class TotalChallanAmount extends StatefulWidget {
   const TotalChallanAmount({Key? key}) : super(key: key);
@@ -17,6 +17,7 @@ class TotalChallanAmount extends StatefulWidget {
 
 class _TotalChallanAmountState extends State<TotalChallanAmount> {
   final ChallanController controller = Get.find<ChallanController>();
+final NumberFormat _amountFormat = NumberFormat('#,##0', 'en_PK');
 
   @override
   void initState() {
@@ -150,11 +151,11 @@ class _TotalChallanAmountState extends State<TotalChallanAmount> {
             ),
             SizedBox(height: 12.h),
             CustomText(
-              text: 'PKR ${data.fineAmount.toStringAsFixed(0)}',
-              fontSize: 36.sp,
-              fontWeight: FontWeight.bold,
-              color: AppColors.white,
-            ),
+  text: 'PKR ${_amountFormat.format(data.fineAmount)}',
+  fontSize: 36.sp,
+  fontWeight: FontWeight.bold,
+  color: AppColors.white,
+),
             SizedBox(height: 16.h),
             ClipRRect(
               borderRadius: BorderRadius.circular(3.r),
@@ -169,16 +170,17 @@ class _TotalChallanAmountState extends State<TotalChallanAmount> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildAmountStatItem(
-                  'Paid', 
-                  'PKR ${data.paidAmount.toStringAsFixed(0)}', 
-                  AppColors.lime
-                ),
-                _buildAmountStatItem(
-                  'Unpaid', 
-                  'PKR ${data.unpaidAmount.toStringAsFixed(0)}', 
-                  AppColors.orange
-                ),
+              // Paid / Unpaid
+_buildAmountStatItem(
+  'Paid', 
+  'PKR ${_amountFormat.format(data.paidAmount)}', 
+  AppColors.lime
+),
+_buildAmountStatItem(
+  'Unpaid', 
+  'PKR ${_amountFormat.format(data.unpaidAmount)}', 
+  AppColors.orange
+),
               ],
             ),
           ],
@@ -224,21 +226,21 @@ class _TotalChallanAmountState extends State<TotalChallanAmount> {
           ),
         ),
         SizedBox(height: 12.h),
-        _buildAmountBreakdownItem(
-          Icons.check_circle_outlined, 
-          'Paid Amount', 
-          'PKR ${data.paidAmount.toStringAsFixed(0)}', 
-          '${paidPercent.toStringAsFixed(1)}%', 
-          AppColors.lime
-        ),
-        SizedBox(height: 10.h),
-        _buildAmountBreakdownItem(
-          Icons.cancel_outlined, 
-          'Unpaid Amount', 
-          'PKR ${data.unpaidAmount.toStringAsFixed(0)}', 
-          '${unpaidPercent.toStringAsFixed(1)}%', 
-          AppColors.appRed
-        ),
+        // Amount Breakdown
+_buildAmountBreakdownItem(
+  Icons.check_circle_outlined, 
+  'Paid Amount', 
+  'PKR ${_amountFormat.format(data.paidAmount)}', 
+  '${paidPercent.toStringAsFixed(1)}%', 
+  AppColors.lime
+),
+_buildAmountBreakdownItem(
+  Icons.cancel_outlined, 
+  'Unpaid Amount', 
+  'PKR ${_amountFormat.format(data.unpaidAmount)}', 
+  '${unpaidPercent.toStringAsFixed(1)}%', 
+  AppColors.appRed
+),
       ],
     );
   }

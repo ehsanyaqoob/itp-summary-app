@@ -1,61 +1,58 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:trafficlly/models/dl_model.dart';
-import 'package:trafficlly/models/challans_model.dart';
-import 'package:trafficlly/screens/details_views/total_dl_amount.dart'; 
+import 'package:trafficlly/screens/details_views/total_dl_amount.dart';
 import 'package:trafficlly/screens/details_views/total_driving_licences.dart';
 import 'package:trafficlly/utills/export.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class SummaryCards extends StatelessWidget {
   const SummaryCards({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final NumberFormat _amountFormat = NumberFormat('#,##0', 'en_PK');
+
     final ChallanController challanController = Get.find<ChallanController>();
-    final DrivingLicenceController dlController = Get.find<DrivingLicenceController>();
-    final TotalDlAmountController dlAmountController = Get.find<TotalDlAmountController>();
+    final DrivingLicenceController dlController =
+        Get.find<DrivingLicenceController>();
 
     return Obx(() {
-      final String currentFilter = challanController.selectedFilter.value; 
       final ChallanModel challan = challanController.challanData.value;
       final DrivingLicenceModel dlData = dlController.licenceData.value;
-      
-      final dlCollectionAmount = dlData.getTotalAmount(currentFilter).toStringAsFixed(0);
 
-      // --- Filtered Data Extraction ---
+      final dlCollectionAmount = _amountFormat.format(
+        dlData.getTotalAmount('daily'),
+      );
       final challanTickets = challan.eTicket;
-      final challanFineAmount = challan.fineAmount.toStringAsFixed(0);
-      final dlRecords = dlData.getTotalRecords(currentFilter).toString();
-      
-      
-      // --- Cards Data Definition ---
+      final challanFineAmount = _amountFormat.format(challan.fineAmount);
+      final dlRecords = dlData.getTotalRecords('daily').toString();
+
       final List<Map<String, dynamic>> cardsData = [
         {
           "icon": FontAwesomeIcons.ticket,
-          "label": "$challanTickets\n${_getLabel(currentFilter, 'Challans')}", 
+          "label": "$challanTickets\n Traffic Tickets",
           "startColor": AppColors.primary,
           "endColor": AppColors.appSecondary,
           "route": TotalChallansView(),
         },
         {
           "icon": FontAwesomeIcons.idCard,
-          "label": "$dlRecords\n${_getLabel(currentFilter, 'DL Records')}", 
-          "startColor": AppColors.violatorHistory, 
+          "label": "$dlRecords\n Driving Licences",
+          "startColor": AppColors.violatorHistory,
           "endColor": AppColors.lime,
           "route": TotalDrivingLicencesView(),
         },
         {
           "icon": FontAwesomeIcons.moneyBill,
-          "label": "Rs $challanFineAmount\n${_getLabel(currentFilter, 'Challan Fine')}",
-          "startColor": AppColors.challanAmountColor, 
+          "label": "Rs $challanFineAmount\n Traffic Tickets Fine Amount",
+          "startColor": AppColors.challanAmountColor,
           "endColor": AppColors.accent,
           "route": TotalChallanAmount(),
         },
         {
           "icon": FontAwesomeIcons.sackDollar,
-          "label": "Rs $dlCollectionAmount\n${_getLabel(currentFilter, 'DL Collection')}", 
-          "startColor": AppColors.appRed, 
+          "label": "Rs $dlCollectionAmount\n Driving Licences Collection Fee",
+          "startColor": AppColors.appRed,
           "endColor": AppColors.orange,
           "route": TotalDlAmount(),
         },
@@ -68,9 +65,7 @@ class SummaryCards extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 12.w,
           mainAxisSpacing: 12.h,
-          // 💡 KEY FIX: Increased aspect ratio slightly to give more height 
-          // (Lower number = taller card, fixing the bottom overflow).
-          childAspectRatio: 1.3, 
+          childAspectRatio: 1.3,
         ),
         itemCount: cardsData.length,
         itemBuilder: (context, index) {
@@ -86,17 +81,7 @@ class SummaryCards extends StatelessWidget {
       );
     });
   }
-  
-  // Helper function remains the same
-  String _getLabel(String filter, String baseLabel) {
-    if (filter.toLowerCase() == 'daily') return "Today's $baseLabel";
-    if (filter.toLowerCase() == 'weekly') return "Weekly $baseLabel";
-    if (filter.toLowerCase() == 'monthly') return "Monthly $baseLabel";
-    if (filter.toLowerCase() == 'yearly') return "Yearly $baseLabel";
-    return "Total $baseLabel";
-  }
 
-  // --- Card Building Widget ---
   Widget _buildCard({
     required IconData icon,
     required String label,
@@ -124,11 +109,12 @@ class SummaryCards extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // ... Background circles ...
             Positioned(
-              top: -20, right: -20,
+              top: -20,
+              right: -20,
               child: Container(
-                width: 80, height: 80,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   color: AppColors.white.withOpacity(0.3),
                   shape: BoxShape.circle,
@@ -136,9 +122,11 @@ class SummaryCards extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: -10, left: -10,
+              bottom: -10,
+              left: -10,
               child: Container(
-                width: 50, height: 50,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   color: AppColors.white.withOpacity(0.3),
                   shape: BoxShape.circle,
@@ -151,13 +139,12 @@ class SummaryCards extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 💡 TWEAK: Slightly reduced icon size for breathing room
-                    FaIcon(icon, size: 32.sp, color: AppColors.white), 
-                    SizedBox(height: 8.h), // 💡 TWEAK: Reduced vertical spacing
+                    FaIcon(icon, size: 32.sp, color: AppColors.white),
+                    SizedBox(height: 8.h),
                     CustomText(
                       textAlign: TextAlign.center,
                       text: label,
-                      fontSize: 13.sp, // 💡 TWEAK: Slightly reduced font size for safety
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColors.white.withOpacity(0.95),
                     ),

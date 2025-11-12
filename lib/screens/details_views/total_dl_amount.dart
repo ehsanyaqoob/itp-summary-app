@@ -6,6 +6,7 @@ import 'package:trafficlly/utills/export.dart';
 import 'package:trafficlly/widgets/App_Bar_Widget.dart';
 import 'package:trafficlly/widgets/custom_button.dart';
 import 'package:trafficlly/widgets/shimmer.dart';
+import 'package:intl/intl.dart';
 
 class TotalDlAmount extends StatefulWidget {
   const TotalDlAmount({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class TotalDlAmount extends StatefulWidget {
 class _TotalDlAmountState extends State<TotalDlAmount> {
   final DrivingLicenceController controller = Get.find<DrivingLicenceController>();
   RxBool showShimmerOnRefresh = false.obs;
+  final NumberFormat _amountFormat = NumberFormat('#,##0', 'en_PK');
 
   @override
   void initState() {
@@ -151,12 +153,13 @@ class _TotalDlAmountState extends State<TotalDlAmount> {
               fontWeight: FontWeight.w600,
             ),
             SizedBox(height: 12.h),
-            CustomText(
-              text: 'PKR ${totalAmount.toStringAsFixed(0)}',
-              fontSize: 36.sp,
-              fontWeight: FontWeight.bold,
-              color: AppColors.white,
-            ),
+           // Total DL Amount
+CustomText(
+  text: 'PKR ${_amountFormat.format(totalAmount)}',
+  fontSize: 36.sp,
+  fontWeight: FontWeight.bold,
+  color: AppColors.white,
+),
             SizedBox(height: 16.h),
             ClipRRect(
               borderRadius: BorderRadius.circular(3.r),
@@ -171,16 +174,18 @@ class _TotalDlAmountState extends State<TotalDlAmount> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildAmountStatItem(
-                  'Paid', 
-                  'PKR ${paidAmount.toStringAsFixed(0)}', 
-                  AppColors.lime
-                ),
-                _buildAmountStatItem(
-                  'Unpaid', 
-                  'PKR ${data.getUnpaidAmount(controller.selectedFilter.value).toStringAsFixed(0)}', 
-                  AppColors.orange
-                ),
+                // Paid / Unpaid amounts
+_buildAmountStatItem(
+  'Paid', 
+  'PKR ${_amountFormat.format(paidAmount)}', 
+  AppColors.lime
+),
+_buildAmountStatItem(
+  'Unpaid', 
+  'PKR ${_amountFormat.format(data.getUnpaidAmount(controller.selectedFilter.value))}', 
+  AppColors.orange
+),
+
               ],
             ),
           ],
@@ -229,21 +234,21 @@ class _TotalDlAmountState extends State<TotalDlAmount> {
           ),
         ),
         SizedBox(height: 12.h),
-        _buildAmountBreakdownItem(
-          Icons.check_circle_outlined, 
-          'Paid Amount', 
-          'PKR ${paidAmount.toStringAsFixed(0)}', 
-          '${paidPercent.toStringAsFixed(1)}%', 
-          AppColors.lime
-        ),
-        SizedBox(height: 10.h),
-        _buildAmountBreakdownItem(
-          Icons.cancel_outlined, 
-          'Unpaid Amount', 
-          'PKR ${unpaidAmount.toStringAsFixed(0)}', 
-          '${unpaidPercent.toStringAsFixed(1)}%', 
-          AppColors.appRed
-        ),
+       // Amount Breakdown
+_buildAmountBreakdownItem(
+  Icons.check_circle_outlined, 
+  'Paid Amount', 
+  'PKR ${_amountFormat.format(paidAmount)}', 
+  '${paidPercent.toStringAsFixed(1)}%', 
+  AppColors.lime
+),
+_buildAmountBreakdownItem(
+  Icons.cancel_outlined, 
+  'Unpaid Amount', 
+  'PKR ${_amountFormat.format(unpaidAmount)}', 
+  '${unpaidPercent.toStringAsFixed(1)}%', 
+  AppColors.appRed
+),
       ],
     );
   }

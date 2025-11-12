@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:trafficlly/models/dl_model.dart';
 import 'package:trafficlly/utills/export.dart';
 import 'package:trafficlly/widgets/App_Bar_Widget.dart';
@@ -30,12 +28,9 @@ class _TotalDrivingLicencesViewState extends State<TotalDrivingLicencesView> {
         ],
       ),
       backgroundColor: AppColors.scaffoldBackgroundColor,
-      body: Obx(() {
-        if (controller.isLoading.value && controller.isInitialLoad.value) {
-          return ShimmerClass();
-        }
-        return _buildContent();
-      }),
+      body: Obx(() => controller.isLoading.value && controller.isInitialLoad.value
+          ? ShimmerClass()
+          : _buildContent()),
     );
   }
 
@@ -49,6 +44,7 @@ class _TotalDrivingLicencesViewState extends State<TotalDrivingLicencesView> {
           DrivingLicencesInfoCard(
             selectedFilter: controller.selectedFilter.value,
             data: controller.licenceData.value,
+            formatAmount: controller.formatAmount,
           ),
           SizedBox(height: 20.h),
           LearnerStatisticsCard(data: controller.licenceData.value),
@@ -127,14 +123,16 @@ class _TotalDrivingLicencesViewState extends State<TotalDrivingLicencesView> {
   }
 }
 
-// -------------------------------------------------------------------
-// ========================== DRIVING LICENCE INFO CARD ==========================
-// -------------------------------------------------------------------
 class DrivingLicencesInfoCard extends StatelessWidget {
   final String selectedFilter;
   final DrivingLicenceModel data;
+  final String Function(double) formatAmount;
 
-  const DrivingLicencesInfoCard({required this.selectedFilter, required this.data});
+  const DrivingLicencesInfoCard({
+    required this.selectedFilter,
+    required this.data,
+    required this.formatAmount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -160,27 +158,12 @@ class DrivingLicencesInfoCard extends StatelessWidget {
         children: [
           _buildHeader(),
           Divider(thickness: 1, color: AppColors.primary.withOpacity(0.5), height: 20.h),
-          
-          _buildInfoRow(Icons.receipt, "Total Records",
-              data.getTotalRecords(selectedFilter).toString(), AppColors.deepPurple),
-
-          _buildInfoRow(Icons.check_circle, "Paid Tickets",
-              data.getPaidTickets(selectedFilter).toString(), AppColors.lime),
-
-          _buildInfoRow(Icons.pending_actions, "Unpaid Tickets",
-              data.getUnpaidTickets(selectedFilter).toString(), AppColors.orange),
-          
+          _buildInfoRow(Icons.receipt, "Total Records", data.getTotalRecords(selectedFilter).toString(), AppColors.deepPurple),
           SizedBox(height: 10.h),
           Divider(thickness: 1, color: AppColors.grey.withOpacity(0.3), height: 20.h),
-          
-          _buildInfoRow(Icons.payments, "Paid Amount",
-              "Rs. ${data.getPaidAmount(selectedFilter).toStringAsFixed(2)}", AppColors.violatorHistory),
-
-          _buildInfoRow(Icons.money_off, "Unpaid Amount",
-              "Rs. ${data.getUnpaidAmount(selectedFilter).toStringAsFixed(2)}", AppColors.appRed),
-
-          _buildInfoRow(Icons.account_balance_wallet, "Total Amount",
-              "Rs. ${data.getTotalAmount(selectedFilter).toStringAsFixed(2)}", AppColors.primary),
+          _buildInfoRow(Icons.payments, "Paid Amount", "Rs. ${formatAmount(data.getPaidAmount(selectedFilter))}", AppColors.violatorHistory),
+          _buildInfoRow(Icons.money_off, "Unpaid Amount", "Rs. ${formatAmount(data.getUnpaidAmount(selectedFilter))}", AppColors.appRed),
+          _buildInfoRow(Icons.account_balance_wallet, "Total Amount", "Rs. ${formatAmount(data.getTotalAmount(selectedFilter))}", AppColors.primary),
         ],
       ),
     );
@@ -193,7 +176,7 @@ class DrivingLicencesInfoCard extends StatelessWidget {
         Icon(Icons.calendar_today, color: AppColors.primary, size: 24.sp),
         SizedBox(width: 8.w),
         CustomText(
-          text: "${selectedFilter.capitalizeFirst} Ticket Statistics",
+          text: "${selectedFilter.capitalizeFirst} DL Summary",
           fontSize: 18.sp,
           fontWeight: FontWeight.bold,
           color: AppColors.primary,
@@ -208,33 +191,14 @@ class DrivingLicencesInfoCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 22.sp),
-              SizedBox(width: 12.w),
-              CustomText(
-                text: title, 
-                fontSize: 15.sp, 
-                fontWeight: FontWeight.w500,
-                color: AppColors.appBlack1,
-              ),
-            ],
-          ),
-          CustomText(
-            text: value,
-            fontSize: 15.sp,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          Row(children: [Icon(icon, color: color, size: 22.sp), SizedBox(width: 12.w), CustomText(text: title, fontSize: 15.sp, fontWeight: FontWeight.w500, color: AppColors.appBlack1)]),
+          CustomText(text: value, fontSize: 15.sp, fontWeight: FontWeight.bold, color: color),
         ],
       ),
     );
   }
 }
 
-// -------------------------------------------------------------------
-// ========================== LEARNER STATISTICS CARD ==========================
-// -------------------------------------------------------------------
 class LearnerStatisticsCard extends StatelessWidget {
   final DrivingLicenceModel data;
 
@@ -247,52 +211,24 @@ class LearnerStatisticsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.2),
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: AppColors.grey.withOpacity(0.2), blurRadius: 6, offset: Offset(0, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.school, color: AppColors.primary, size: 24.sp),
-              SizedBox(width: 8.w),
-              CustomText(
-                text: "Learner Statistics",
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ],
-          ),
-
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.school, color: AppColors.primary, size: 24.sp), SizedBox(width: 8.w), CustomText(text: "Learner Summary", fontSize: 18.sp, fontWeight: FontWeight.bold, color: AppColors.primary)]),
           Divider(thickness: 1, color: AppColors.primary.withOpacity(0.5), height: 20.h),
-
-          _buildLearnerRow(Icons.verified, "Approved Learners", 
-              data.approveLearner.toString(), AppColors.lime),
-
-          _buildLearnerRow(Icons.hourglass_empty, "In Process Learners", 
-              data.inprocessLearner.toString(), AppColors.appSecondary),
-
-          _buildLearnerRow(Icons.pending, "Pending Learners", 
-              data.pendingLearner.toString(), AppColors.amber),
-
-          _buildLearnerRow(Icons.cancel, "Rejected Learners", 
-              data.rejectedLearner.toString(), AppColors.appRed),
-          
+          _buildLearnerRow(Icons.verified, "Approved", data.approveLearner.toString(), AppColors.lime),
+          _buildLearnerRow(Icons.hourglass_empty, "In Process", data.inprocessLearner.toString(), AppColors.appSecondary),
+          _buildLearnerRow(Icons.pending, "Pending", data.pendingLearner.toString(), AppColors.amber),
+          _buildLearnerRow(Icons.cancel, "Rejected", data.rejectedLearner.toString(), AppColors.appRed),
           Divider(thickness: 1, color: AppColors.grey.withOpacity(0.3), height: 20.h),
+          CustomText(text: 'Applicant Gender', color: AppColors.black,
+          fontSize: 18.0,
 
-          _buildLearnerRow(Icons.male, "Male Learners", 
-              data.maleLearner.toString(), AppColors.primary),
-
-          _buildLearnerRow(Icons.female, "Female Learners", 
-              data.femaleLearner.toString(), AppColors.deepPurple),
+          ),
+          _buildLearnerRow(Icons.male, "Male", data.maleLearner.toString(), AppColors.primary),
+          _buildLearnerRow(Icons.female, "Female", data.femaleLearner.toString(), AppColors.deepPurple),
         ],
       ),
     );
@@ -304,23 +240,8 @@ class LearnerStatisticsCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 22.sp),
-              SizedBox(width: 10.w),
-              CustomText(
-                text: title, 
-                fontSize: 15.sp,
-                color: AppColors.appBlack1,
-              ),
-            ],
-          ),
-          CustomText(
-            text: value,
-            fontSize: 15.sp,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          Row(children: [Icon(icon, color: color, size: 22.sp), SizedBox(width: 10.w), CustomText(text: title, fontSize: 15.sp, color: AppColors.appBlack1)]),
+          CustomText(text: value, fontSize: 15.sp, fontWeight: FontWeight.bold, color: color),
         ],
       ),
     );
