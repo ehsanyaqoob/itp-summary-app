@@ -11,6 +11,8 @@ class CustomButton extends StatelessWidget {
     this.filledColor = const Color.fromARGB(255, 18, 117, 231),
     this.borderColor,
     this.shadow = false,
+    this.isLoading = false,
+    this.loaderColor,
   });
 
   final String title;
@@ -20,11 +22,13 @@ class CustomButton extends StatelessWidget {
   final Color? borderColor;
   final Color? filledColor;
   final bool shadow;
+  final bool isLoading;
+  final Color? loaderColor;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       child: Padding(
         padding: EdgeInsets.only(top: topMargin),
         child: Container(
@@ -45,7 +49,7 @@ class CustomButton extends StatelessWidget {
                   )
                 : null,
             color: fillColor
-                ? (onTap == null
+                ? (onTap == null || isLoading
                     ? filledColor?.withOpacity(0.85) // Disabled state
                     : null) // Null allows gradient to take effect
                 : Colors.transparent,
@@ -61,13 +65,25 @@ class CustomButton extends StatelessWidget {
                 : [],
           ),
           child: Center(
-            child: CustomText(
-              text: title,
-              textAlign: TextAlign.center,
-              color: fillColor ? AppColors.white : AppColors.appPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 16.sp,
-            ),
+            child: isLoading
+                ? SizedBox(
+                    width: 20.w,
+                    height: 20.h,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        loaderColor ?? AppColors.white,
+                      ),
+                    ),
+                  )
+                : CustomText(
+                    text: title,
+                    textAlign: TextAlign.center,
+                    color:
+                        fillColor ? AppColors.white : AppColors.appPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                  ),
           ),
         ),
       ),

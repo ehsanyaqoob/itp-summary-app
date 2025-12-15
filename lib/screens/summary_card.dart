@@ -10,7 +10,7 @@ class SummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat _amountFormat = NumberFormat('#,##0', 'en_PK');
+    final NumberFormat _amountFormat = NumberFormat('#,##0', 'en_PK'); 
 
     final ChallanController challanController = Get.find<ChallanController>();
     final DrivingLicenceController dlController =
