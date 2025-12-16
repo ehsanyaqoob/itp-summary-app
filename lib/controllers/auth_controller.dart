@@ -17,15 +17,16 @@ class SplashController extends GetxController {
     startAnimation();
   }
 
-  void startAnimation() async {
-    await Future.delayed(Duration(seconds: 1));
-    showLogo.value = true;
-    isLoading.value = true;
-    await Future.delayed(Duration(seconds: 3));
-    isLoading.value = false;
-    await Future.delayed(Duration(seconds: 1));
-   navigateToNextScreen();
-  }
+void startAnimation() async {
+  // show logo quickly
+  await Future.delayed(const Duration(milliseconds: 300));
+  showLogo.value = true;
+
+  // keep splash visible briefly
+  await Future.delayed(const Duration(seconds: 2));
+  navigateToNextScreen();
+}
+
 
   void navigateToNextScreen() {
     _goNextBasedOnAuth();
@@ -38,12 +39,12 @@ class SplashController extends GetxController {
       if (loggedIn) {
         // user previously logged in -> go to home
         Get.offAll(() => HomeView(),
-            transition: Transition.circularReveal,
-            duration: const Duration(milliseconds: 200));
+            transition: Transition.rightToLeft,
+            duration: const Duration(milliseconds: 100));
       } else {
         // not logged in -> show login
         Get.offAll(() => LoginView(),
-            transition: Transition.circularReveal,
+            transition: Transition.rightToLeft,
             duration: const Duration(milliseconds: 200));
       }
     } catch (e) {

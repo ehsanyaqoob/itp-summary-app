@@ -3,7 +3,7 @@
        <!-- 🌐 Internet Permission -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="ITP Summary"
+        android:label="ITP Dashboard"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
